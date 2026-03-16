@@ -1,53 +1,47 @@
-'use server';
-import fs from 'fs';
-import matter from 'gray-matter';
-import path from 'path';
 import moment from 'moment';
+import { client, urlFor } from './sanity';
 import { ArticleItem } from '../types/index';
-const articlesDirectory = path.join(
-  process.cwd(),
-  'app',
-  '[locale]',
-  'cases-study'
-);
 
-const getArticles = (): ArticleItem[] => {
-  const fileNames = fs.readdirSync(articlesDirectory);
+const CASE_STUDIES_QUERY = `*[_type == "caseStudy"] | order(date desc) {
+  "id": slug.current,
+  title,
+  date,
+  body,
+  image
+}`;
 
-  const allArticlesData = fileNames.map((fileName) => {
-    const id = fileName.replace(/\.md$/, '');
-
-    const fullPath = path.join(articlesDirectory, fileName);
-    const fileContents = fs.readFileSync(fullPath, 'utf-8');
-
-    const matterResult = matter(fileContents);
-    const content = matterResult.content.toString();
-    return {
-      id,
-      title: matterResult.data.title,
-      image: matterResult.data.image,
-      date: moment(matterResult.data.date, 'DD-MM-YYYY').format(
-        'MMMM Do, YYYY'
-      ),
-      content,
-    };
-  });
-
-  return allArticlesData;
+const getArticles = async (): Promise<ArticleItem[]> => {
+  const results = await client.fetch(CASE_STUDIES_QUERY);
+  return results.map((item: any) => ({
+    id: item.id,
+    title: item.title,
+    image: item.image ? urlFor(item.image) : '',
+    date: item.date
+      ? moment(item.date, 'YYYY-MM-DD').format('MMMM Do, YYYY')
+      : '',
+    body: item.body ?? [],
+  }));
 };
 
 export default getArticles;
 
-export const getArticleById = (id: string) => {
-  const fullPath = path.join(articlesDirectory, `${id}.md`);
-  const fileContents = fs.readFileSync(fullPath, 'utf-8');
-  const matterResult = matter(fileContents);
-  const content = matterResult.content.toString();
+export const getArticleById = async (id: string): Promise<ArticleItem | null> => {
+  const query = `*[_type == "caseStudy" && slug.current == $id][0] {
+    "id": slug.current,
+    title,
+    date,
+    body,
+    image
+  }`;
+  const item = await client.fetch(query, { id });
+  if (!item) return null;
   return {
-    id,
-    content,
-    image: matterResult.data.image,
-    title: matterResult.data.title,
-    date: moment(matterResult.data.date, 'DD-MM-YYYY').format('MMMM Do, YYYY'),
+    id: item.id,
+    title: item.title,
+    image: item.image ? urlFor(item.image) : '',
+    date: item.date
+      ? moment(item.date, 'YYYY-MM-DD').format('MMMM Do, YYYY')
+      : '',
+    body: item.body ?? [],
   };
 };
