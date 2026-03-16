@@ -19,7 +19,7 @@ const getArticles = async (): Promise<ArticleItem[]> => {
     date: item.date
       ? moment(item.date, 'YYYY-MM-DD').format('MMMM Do, YYYY')
       : '',
-    body: item.body ?? [],
+    body: item.body ?? '',
   }));
 };
 
@@ -42,6 +42,6 @@ export const getArticleById = async (id: string): Promise<ArticleItem | null> =>
     date: item.date
       ? moment(item.date, 'YYYY-MM-DD').format('MMMM Do, YYYY')
       : '',
-    body: item.body ?? [],
+    body: item.body ?? '',
   };
 };

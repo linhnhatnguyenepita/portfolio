@@ -4,9 +4,9 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { PortableText } from '@portabletext/react';
+import ReactMarkdown from 'react-markdown';
 import Article from '../../components/article';
-import { ArticleItem } from '../../types/index';
+import type { ArticleItem } from '../../types/index';
 
 interface Props {
   article: ArticleItem;
@@ -76,7 +76,7 @@ export default function CaseDetailClient({ article, otherArticles }: Props) {
 
           {/* Body */}
           <div className="prose prose-stone max-w-none">
-            <PortableText value={article.body} />
+            <ReactMarkdown>{article.body}</ReactMarkdown>
           </div>
         </div>
       </div>

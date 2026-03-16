@@ -5,17 +5,14 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
-function getExcerpt(body: any[]): string {
-  const firstBlock = body?.find((b) => b._type === 'block');
-  const text =
-    firstBlock?.children?.map((c: any) => c.text).join('') ?? '';
-  return text.slice(0, 120);
+function getExcerpt(body: string): string {
+  return (body ?? '').replace(/[#*`>\[\]_~]/g, '').trim().slice(0, 120);
 }
 
 export default function Article(props: {
   id: string;
   image: string;
-  body: any[];
+  body: string;
   date: string;
   title: string;
 }) {

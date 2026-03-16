@@ -3,5 +3,6 @@ export type ArticleItem = {
   image: string;
   title: string;
   date: string;
-  content: string;
+  body: string;
 };
+
