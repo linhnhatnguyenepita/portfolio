@@ -1,65 +1,56 @@
 'use client';
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import Image, { StaticImageData } from 'next/image';
-import { IoMdClose } from 'react-icons/io';
-import Markdown from 'react-markdown';
-import remarkImages from 'remark-images';
+import React from 'react';
+import { motion } from 'framer-motion';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
+
+function getExcerpt(body: any[]): string {
+  const firstBlock = body?.find((b) => b._type === 'block');
+  const text =
+    firstBlock?.children?.map((c: any) => c.text).join('') ?? '';
+  return text.slice(0, 120);
+}
 
 export default function Article(props: {
   id: string;
-  image: StaticImageData;
-  content: string;
+  image: string;
+  body: any[];
   date: string;
   title: string;
 }) {
-  const [open, setOpen] = useState(false);
+  const params = useParams();
+  const locale = Array.isArray(params.locale) ? params.locale[0] : (params.locale as string);
+  const excerpt = getExcerpt(props.body);
 
   return (
-    <div>
+    <Link href={`/${locale}/case/${props.id}`} className="block w-full">
       <motion.div
-        className="w-full h-full flex items-center justify-center !opacity-100 !transform !translate-x-0 !translate-y-0 !pointer-events-auto"
         key={props.id}
-        layoutId={props.title}
-        onClick={() => setOpen(true)}
+        className="w-full bg-[#e7e4d6] rounded-xl flex flex-col p-6 hover:shadow-lg transition cursor-pointer"
       >
-        <motion.div className="w-3/4 h-full bg-[#e7e4d6] rounded-xl flex justify-start items-center flex-col p-8 hover:shadow-lg transition">
-          <Image src={props.image} alt="" className="w-full rounded-md mb-12" />
-          <div className="description flex flex-col flex-shrink-0">
-            <h2 className="font-semibold text-2xl mb-2 flex-1">
-              {props.title}
-            </h2>
+        {props.image && (
+          <div className="relative aspect-video w-full rounded-md overflow-hidden mb-4">
+            <Image
+              src={props.image}
+              alt={props.title}
+              fill
+              className="object-cover"
+            />
           </div>
-        </motion.div>
-      </motion.div>
-
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            className="w-full h-full flex items-center justify-center fixed top-1/2 left-1/2 bg-[#b0ada08c] z-50 !transform -translate-x-1/2 -translate-y-1/2  backdrop-blur-lg text-black"
-            key={props.id}
-            layoutId={props.title}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <motion.div className="w-4/5 h-5/6 flex flex-col items-start justify-start bg-[#ece9dc] overflow-y-auto p-10 rounded-lg">
-              <motion.h1 className="mb-8 text-5xl">{props.title}</motion.h1>
-              <motion.div className="mt-8">
-                <Markdown remarkPlugins={[remarkImages]} className={'markdown'}>
-                  {props.content}
-                </Markdown>
-              </motion.div>
-              <motion.button
-                className="absolute top-4 right-4 bg-[#8e705b] rounded-full p-2"
-                onClick={() => setOpen(false)}
-              >
-                <IoMdClose color="#d9d6c8" className="stroke-[20px]" />
-              </motion.button>
-            </motion.div>
-          </motion.div>
         )}
-      </AnimatePresence>
-    </div>
+        <div className="flex flex-col gap-1">
+          {props.date && (
+            <span className="text-xs text-[#8e705b]">{props.date}</span>
+          )}
+          <h2 className="font-semibold text-xl">{props.title}</h2>
+          {excerpt && (
+            <p className="text-sm text-[#6b6259] line-clamp-2 mt-1">
+              {excerpt}
+            </p>
+          )}
+        </div>
+      </motion.div>
+    </Link>
   );
 }
