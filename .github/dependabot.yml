@@ -1,0 +1,43 @@
+version: 2
+
+updates:
+  # -------------------------------------------------------------------------
+  # npm — application dependencies
+  # -------------------------------------------------------------------------
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      # Bundle all minor and patch updates for production deps into one PR.
+      production-minor-patch:
+        dependency-type: production
+        update-types:
+          - minor
+          - patch
+      # Bundle all minor and patch updates for dev deps into one PR.
+      dev-minor-patch:
+        dependency-type: development
+        update-types:
+          - minor
+          - patch
+
+  # -------------------------------------------------------------------------
+  # GitHub Actions — keep action versions current
+  # -------------------------------------------------------------------------
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+
+  # -------------------------------------------------------------------------
+  # Docker — keep the Dockerfile base image current
+  # -------------------------------------------------------------------------
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday

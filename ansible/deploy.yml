@@ -1,0 +1,39 @@
+---
+- name: Deploy portfolio to VPS
+  hosts: vps
+  gather_facts: false
+
+  vars:
+    image: "ghcr.io/linhnhatnguyenepita/portfolio"
+    image_tag: "latest"
+    container_name: "portfolio"
+    app_port: 3000
+
+  tasks:
+    - name: Log in to GitHub Container Registry
+      community.docker.docker_login:
+        registry_url: ghcr.io
+        username: "{{ lookup('env', 'GHCR_USER') }}"
+        password: "{{ lookup('env', 'GHCR_PAT') }}"
+
+    - name: Pull image
+      community.docker.docker_image:
+        name: "{{ image }}"
+        tag: "{{ image_tag }}"
+        source: pull
+        force_source: true
+
+    - name: Stop and remove existing container
+      community.docker.docker_container:
+        name: "{{ container_name }}"
+        state: absent
+
+    - name: Run new container
+      community.docker.docker_container:
+        name: "{{ container_name }}"
+        image: "{{ image }}:{{ image_tag }}"
+        state: started
+        restart_policy: unless-stopped
+        published_ports:
+          - "{{ app_port }}:{{ app_port }}"
+        env_file: /opt/portfolio/.env
