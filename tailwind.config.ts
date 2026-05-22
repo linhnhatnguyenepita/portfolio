@@ -18,6 +18,7 @@ const config: Config = {
     },
   },
   plugins: [
+    require('@tailwindcss/typography'),
     nextui({
       defaultTheme: 'light',
       themes: {

@@ -1,11 +1,15 @@
 'use client';
-import React from 'react';
+
+import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import Article from '../../components/article';
+import TableOfContents from '../../components/TableOfContents';
+import { extractToc } from '../../lib/markdown';
 import type { ArticleItem } from '../../types/index';
 
 interface Props {
@@ -13,79 +17,121 @@ interface Props {
   otherArticles: ArticleItem[];
 }
 
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim();
+}
+
+const headingComponents = {
+  h1: ({ children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
+    <h1 id={slugify(String(children))} {...props}>{children}</h1>
+  ),
+  h2: ({ children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
+    <h2 id={slugify(String(children))} {...props}>{children}</h2>
+  ),
+  h3: ({ children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
+    <h3 id={slugify(String(children))} {...props}>{children}</h3>
+  ),
+  h4: ({ children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
+    <h4 id={slugify(String(children))} {...props}>{children}</h4>
+  ),
+  h5: ({ children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
+    <h5 id={slugify(String(children))} {...props}>{children}</h5>
+  ),
+  h6: ({ children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
+    <h6 id={slugify(String(children))} {...props}>{children}</h6>
+  ),
+};
+
 export default function CaseDetailClient({ article, otherArticles }: Props) {
   const params = useParams();
   const locale = Array.isArray(params.locale) ? params.locale[0] : (params.locale as string);
+  const toc = useMemo(() => extractToc(article.body), [article.body]);
 
   return (
     <motion.div
-      className="min-h-screen bg-[#ece9dc]"
+      className="case-detail-page min-h-screen bg-[#faf7ea] antialiased"
+      style={{ color: '#24292e' }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      {/* Main content area */}
-      <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto px-4 sm:px-8 py-12 gap-12">
+      <main className="mx-auto max-w-[1280px] px-4 py-8">
+        <Link
+          href={`/${locale}/#case`}
+          className="mb-6 inline-block text-sm"
+          style={{ color: '#0366d6' }}
+        >
+          ← Back
+        </Link>
 
-        {/* Sidebar — desktop only */}
-        <aside className="hidden lg:flex flex-col gap-4 w-[30%] sticky top-24 self-start">
-          <Link
-            href={`/${locale}/#case`}
-            className="text-sm text-[#8e705b] hover:underline"
-          >
-            ← Back
-          </Link>
-          <h1 className="text-4xl font-semibold text-[#3d2e26] leading-tight">
-            {article.title}
-          </h1>
-          {article.date && (
-            <span className="text-sm text-[#8e705b]">{article.date}</span>
-          )}
-        </aside>
-
-        {/* Content column */}
-        <div className="flex-1">
-
-          {/* Mobile header — hidden on desktop */}
-          <div className="lg:hidden flex flex-col gap-2 mb-6">
-            <Link
-              href={`/${locale}/#case`}
-              className="text-sm text-[#8e705b] hover:underline"
+        <article>
+          <header className="mb-8 pb-8" style={{ borderBottom: '1px solid #eaecef' }}>
+            {article.category && (
+              <span
+                className="text-xs font-semibold uppercase tracking-wider"
+                style={{ color: '#0366d6' }}
+              >
+                {article.category}
+              </span>
+            )}
+            <h1
+              className="mt-2 font-semibold leading-tight"
+              style={{ color: '#24292e', fontSize: '2em' }}
             >
-              ← Back
-            </Link>
-            <h1 className="text-3xl font-semibold text-[#3d2e26] leading-tight">
               {article.title}
             </h1>
             {article.date && (
-              <span className="text-sm text-[#8e705b]">{article.date}</span>
+              <time
+                className="mt-3 block text-sm"
+                style={{ color: '#6a737d' }}
+              >
+                {article.date}
+              </time>
             )}
-          </div>
+          </header>
 
-          {/* Hero image */}
-          {article.image && (
-            <div className="relative aspect-video w-full rounded-md overflow-hidden mb-8">
-              <Image
-                src={article.image}
-                alt={article.title}
-                fill
-                className="object-cover"
-              />
+          <div className="relative lg:flex lg:gap-10">
+            <aside className="w-56 shrink-0">
+              <TableOfContents entries={toc} />
+            </aside>
+
+            <div className="min-w-0 flex-1">
+              {article.image && (
+                <div
+                  className="relative mb-8 w-full overflow-hidden rounded"
+                  style={{ border: '1px solid #eaecef', aspectRatio: '16/9' }}
+                >
+                  <Image
+                    src={article.image}
+                    alt={article.title}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              )}
+
+              <div className="prose max-w-none">
+                <ReactMarkdown remarkPlugins={[remarkGfm]} components={headingComponents}>
+                  {article.body}
+                </ReactMarkdown>
+              </div>
             </div>
-          )}
-
-          {/* Body */}
-          <div className="prose prose-stone max-w-none">
-            <ReactMarkdown>{article.body}</ReactMarkdown>
           </div>
-        </div>
-      </div>
+        </article>
+      </main>
 
-      {/* Other Case Studies */}
       {otherArticles.length > 0 && (
-        <div className="w-full max-w-6xl mx-auto px-4 sm:px-8 pb-16">
-          <div className="h-[2px] bg-[#8e705b] w-32 mb-6" />
-          <p className="text-xs uppercase tracking-widest text-[#8e705b] mb-6">
+        <div className="mx-auto max-w-[1280px] px-4 pb-16">
+          <div className="h-[2px] w-32 mb-6" style={{ backgroundColor: '#eaecef' }} />
+          <p
+            className="text-xs uppercase tracking-widest mb-6"
+            style={{ color: '#6a737d' }}
+          >
             Other Case Studies
           </p>
           <div className="flex flex-row gap-6 overflow-x-auto snap-x snap-mandatory pb-4">

@@ -4,5 +4,6 @@ export type ArticleItem = {
   title: string;
   date: string;
   body: string;
+  category?: string;
 };
 

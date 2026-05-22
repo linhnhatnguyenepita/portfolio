@@ -7,7 +7,8 @@ const CASE_STUDIES_QUERY = `*[_type == "caseStudy"] | order(date desc) {
   title,
   date,
   body,
-  image
+  image,
+  category
 }`;
 
 const getArticles = async (): Promise<ArticleItem[]> => {
@@ -20,6 +21,7 @@ const getArticles = async (): Promise<ArticleItem[]> => {
       ? moment(item.date, 'YYYY-MM-DD').format('MMMM Do, YYYY')
       : '',
     body: item.body ?? '',
+    category: item.category ?? '',
   }));
 };
 
@@ -31,7 +33,8 @@ export const getArticleById = async (id: string): Promise<ArticleItem | null> =>
     title,
     date,
     body,
-    image
+    image,
+    category
   }`;
   const item = await client.fetch(query, { id });
   if (!item) return null;
@@ -43,5 +46,6 @@ export const getArticleById = async (id: string): Promise<ArticleItem | null> =>
       ? moment(item.date, 'YYYY-MM-DD').format('MMMM Do, YYYY')
       : '',
     body: item.body ?? '',
+    category: item.category ?? '',
   };
 };

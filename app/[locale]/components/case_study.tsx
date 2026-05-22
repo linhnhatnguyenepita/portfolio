@@ -1,10 +1,9 @@
-import projetS5 from '@/public/project-s5.png';
 import Article from './article';
 import getArticles from '../lib/cases';
 import Title from './title';
 
-export default function CaseStudy() {
-  const articles = getArticles();
+export default async function CaseStudy() {
+  const articles = await getArticles();
   return (
     <>
       <div
@@ -18,10 +17,10 @@ export default function CaseStudy() {
             <Article
               key={article.id}
               id={article.id}
-              content={article.content}
+              body={article.body}
               date={article.date}
               title={article.title}
-              image={projetS5}
+              image={article.image}
             />
           ))}
         </div>
