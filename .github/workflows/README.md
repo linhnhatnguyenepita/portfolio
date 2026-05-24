@@ -129,7 +129,7 @@ CodeQL and both Trivy jobs upload SARIF files. Findings appear under **Security 
 
 `sonarcloud.yml` runs on every PR and every push to `main` (plus manual dispatch).
 
-It performs a full SonarCloud analysis driven by `sonar-project.properties` at the repo root, covering the `app/`, `utils/`, and `middleware.js` source paths.
+It performs a full SonarCloud analysis driven by `sonar-project.properties` at the repo root, covering the `app/`, `utils/`, and `proxy.js` source paths.
 
 **Dashboard:**  
 [https://sonarcloud.io/project/overview?id=linhnhatnguyenepita_portfolio](https://sonarcloud.io/project/overview?id=linhnhatnguyenepita_portfolio)

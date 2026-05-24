@@ -7,22 +7,23 @@ import initTranslations from '@/app/i18n';
 import TranslationProvider from '../../components/TranslationProvider';
 
 interface PageProps {
-  params: { locale: string; id: string };
+  params: Promise<{ locale: string; id: string }>;
 }
 
 export default async function CaseDetailPage({ params }: PageProps) {
-  const { resources } = await initTranslations(params.locale, ['common']);
+  const { locale, id } = await params;
+  const { resources } = await initTranslations(locale, ['common']);
 
-  const article = await getArticleById(params.id);
+  const article = await getArticleById(id);
   if (!article) notFound();
 
   const allArticles = await getArticles();
-  const otherArticles = allArticles.filter((a) => a.id !== params.id);
+  const otherArticles = allArticles.filter((a) => a.id !== id);
 
   return (
     <TranslationProvider
       resources={resources}
-      locale={params.locale}
+      locale={locale}
       namespaces={['common']}
     >
       <Header />

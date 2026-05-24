@@ -9,12 +9,13 @@ import TranslationProvider from '@/app/[locale]/components/TranslationProvider';
 type Locale = 'en' | 'fr' | string;
 
 interface HomeProps {
-  params: {
+  params: Promise<{
     locale: Locale;
-  };
+  }>;
 }
 
-export default async function Home({ params: { locale } }: HomeProps) {
+export default async function Home({ params }: HomeProps) {
+  const { locale } = await params;
   const { t, resources } = await initTranslations(locale, ['common']);
   return (
     <TranslationProvider

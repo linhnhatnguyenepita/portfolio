@@ -5,6 +5,7 @@ import {
   NavbarContent,
   NavbarItem,
 } from '@nextui-org/react';
+import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import LanguageChanger from '../components/LanguageChanger';
 
@@ -18,7 +19,7 @@ function Header() {
         justify="center"
       >
         <NavbarItem>
-          <a href="/">{t('header-home')}</a>
+          <Link href="/">{t('header-home')}</Link>
         </NavbarItem>
         <NavbarItem>
           <a href="#about">{t('header-about')}</a>

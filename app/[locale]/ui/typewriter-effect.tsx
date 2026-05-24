@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/utils/cn';
-import { motion, stagger, useAnimate, useInView } from 'framer-motion';
+import { motion, stagger, useAnimate, useInView } from 'motion/react';
 import { useEffect } from 'react';
 
 export const TypewriterEffect = ({
@@ -41,7 +41,7 @@ export const TypewriterEffect = ({
         }
       );
     }
-  }, [isInView]);
+  }, [animate, isInView]);
 
   const renderWords = () => {
     return (

@@ -1,7 +1,7 @@
 'use client';
 import Image from 'next/image';
 import experiences from '@/public/experiences.png';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'motion/react';
 import { useState } from 'react';
 import { IoMdClose } from 'react-icons/io';
 import { useTranslation } from 'react-i18next';
