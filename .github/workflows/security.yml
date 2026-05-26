@@ -87,8 +87,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Build Docker image (no push)
-        run: docker build -t portfolio:scan .
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: portfolio:scan
+          load: true
+          build-args: |
+            NEXT_PUBLIC_SANITY_PROJECT_ID=${{ secrets.NEXT_PUBLIC_SANITY_PROJECT_ID }}
+            NEXT_PUBLIC_SANITY_DATASET=${{ secrets.NEXT_PUBLIC_SANITY_DATASET }}
 
       - name: Run Trivy image scan
         uses: aquasecurity/trivy-action@v0.36.0
