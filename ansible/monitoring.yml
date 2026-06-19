@@ -1,0 +1,125 @@
+---
+# Deploy the Prometheus + Grafana monitoring stack to the VPS.
+#
+# Connects as the deploy user (member of the docker group) — no sudo needed.
+# Run AFTER provision.yml has bootstrapped the host (Docker, /opt/monitoring).
+#
+#   GRAFANA_ADMIN_PASSWORD='...' \
+#   VPS_HOST=1.2.3.4 VPS_USER=deploy \
+#   ansible-playbook -i inventory.ini monitoring.yml
+#
+# Requires the community.docker collection on the controller:
+#   ansible-galaxy collection install community.docker
+- name: Deploy monitoring stack to VPS
+  hosts: vps
+  gather_facts: false
+
+  vars:
+    deploy_user: "{{ lookup('env', 'VPS_USER') | default('deploy', true) }}"
+    monitoring_dir: /opt/monitoring
+    grafana_admin_password: "{{ lookup('env', 'GRAFANA_ADMIN_PASSWORD') }}"
+
+  pre_tasks:
+    - name: Fail early if the Grafana admin password is not set
+      ansible.builtin.assert:
+        that: grafana_admin_password | length > 0
+        fail_msg: "GRAFANA_ADMIN_PASSWORD must be set in the environment."
+
+  tasks:
+    # Directories must be traversable (o+x) and config files readable (o+r) by
+    # the unprivileged users the containers run as (Prometheus uid 65534,
+    # Grafana uid 472) — otherwise Prometheus crash-loops on "permission denied"
+    # reading its config. None of these files hold secrets; the only secret
+    # (the Grafana admin password) lives in docker-compose.yml, kept at 0640.
+    - name: Create monitoring directory tree
+      ansible.builtin.file:
+        path: "{{ monitoring_dir }}/{{ item }}"
+        state: directory
+        mode: "0755"
+      loop:
+        - prometheus
+        - grafana/provisioning/datasources
+        - grafana/provisioning/dashboards
+        - grafana/dashboards
+
+    - name: Render Prometheus configuration
+      ansible.builtin.template:
+        src: prometheus.yml.j2
+        dest: "{{ monitoring_dir }}/prometheus/prometheus.yml"
+        mode: "0644"
+
+    - name: Render Grafana datasource provisioning
+      ansible.builtin.template:
+        src: grafana-datasource.yml.j2
+        dest: "{{ monitoring_dir }}/grafana/provisioning/datasources/prometheus.yml"
+        mode: "0644"
+
+    - name: Render Grafana dashboard provider
+      ansible.builtin.template:
+        src: grafana-dashboards.yml.j2
+        dest: "{{ monitoring_dir }}/grafana/provisioning/dashboards/provider.yml"
+        mode: "0644"
+
+    - name: Copy Grafana dashboards
+      ansible.builtin.copy:
+        src: "dashboards/{{ item }}"
+        dest: "{{ monitoring_dir }}/grafana/dashboards/{{ item }}"
+        mode: "0644"
+      loop:
+        - node-exporter.json
+        - cadvisor.json
+
+    - name: Render docker-compose for the monitoring stack
+      ansible.builtin.template:
+        src: docker-compose.monitoring.yml.j2
+        dest: "{{ monitoring_dir }}/docker-compose.yml"
+        mode: "0640"
+
+    - name: Start the monitoring stack
+      community.docker.docker_compose_v2:
+        project_src: "{{ monitoring_dir }}"
+        state: present
+        pull: always
+        remove_orphans: true
+
+    # ------------------------------------------------------------------
+    # Post-deploy verification
+    # ------------------------------------------------------------------
+    - name: Wait for Prometheus to listen
+      ansible.builtin.wait_for:
+        host: 127.0.0.1
+        port: 9090
+        timeout: 60
+
+    - name: Wait for Grafana to listen
+      ansible.builtin.wait_for:
+        host: 127.0.0.1
+        port: 3001
+        timeout: 60
+
+    - name: Check Prometheus is ready
+      ansible.builtin.uri:
+        url: http://127.0.0.1:9090/-/ready
+        status_code: 200
+      register: prom_ready
+      retries: 10
+      delay: 5
+      until: prom_ready.status == 200
+
+    - name: Check all Prometheus targets are up
+      ansible.builtin.uri:
+        url: http://127.0.0.1:9090/api/v1/targets?state=active
+        return_content: true
+      register: prom_targets
+      retries: 12
+      delay: 5
+      until:
+        - prom_targets.json is defined
+        - prom_targets.json.data.activeTargets | length > 0
+        - prom_targets.json.data.activeTargets | rejectattr('health', 'equalto', 'up') | list | length == 0
+
+    - name: Report monitoring endpoints
+      ansible.builtin.debug:
+        msg:
+          - "Monitoring stack is up. All Prometheus targets are healthy."
+          - "Grafana: tunnel with 'ssh -L 3001:127.0.0.1:3001 {{ deploy_user }}@<VPS_HOST>' then open http://localhost:3001"

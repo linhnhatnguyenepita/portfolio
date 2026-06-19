@@ -1,0 +1,10 @@
+# Managed by Ansible (monitoring.yml) — do not edit on the host.
+apiVersion: 1
+datasources:
+  - name: Prometheus
+    type: prometheus
+    uid: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false

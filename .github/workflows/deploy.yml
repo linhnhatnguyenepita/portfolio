@@ -110,6 +110,20 @@ jobs:
             ansible/deploy.yml \
             -e "image_tag=${{ steps.sha.outputs.short }}"
 
+      - name: Run Ansible monitoring playbook
+        working-directory: ${{ github.workspace }}
+        env:
+          ANSIBLE_CONFIG: ${{ github.workspace }}/ansible/ansible.cfg
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+          GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
+          ANSIBLE_PRIVATE_KEY_FILE: /tmp/vps_deploy_key
+        run: |
+          ansible-playbook \
+            -i ansible/inventory.ini \
+            ansible/monitoring.yml
+
       - name: Remove SSH private key
         if: always()
         run: rm -f /tmp/vps_deploy_key

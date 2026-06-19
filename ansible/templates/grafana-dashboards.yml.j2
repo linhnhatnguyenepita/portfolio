@@ -1,0 +1,14 @@
+# Managed by Ansible (monitoring.yml) — do not edit on the host.
+apiVersion: 1
+providers:
+  - name: default
+    orgId: 1
+    folder: ''
+    type: file
+    disableDeletion: false
+    editable: true
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards
+      foldersFromFilesStructure: false

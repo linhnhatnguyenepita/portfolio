@@ -1,11 +1,13 @@
 ---
 # One-time bootstrap for a fresh Debian/Ubuntu VPS.
 #
-# Run this ONCE against a new box, connecting as root or a sudo-capable user:
+# Run this ONCE against a new box, connecting as a sudo-capable user.
+# On OVH Ubuntu VPS the bootstrap user is 'ubuntu' (passwordless sudo);
+# on other providers it may be 'root'.
 #
 #   VPS_HOST=1.2.3.4 \
 #   ansible-playbook -i inventory.ini provision.yml \
-#     -e "ansible_user=root" \
+#     -e "ansible_user=ubuntu" \
 #     -e "deploy_user=deploy" \
 #     -e "ssh_pubkey='ssh-ed25519 AAAA... you@host'"
 #
@@ -21,6 +23,7 @@
   vars:
     deploy_user: "{{ lookup('env', 'VPS_USER') | default('deploy', true) }}"
     app_dir: /opt/portfolio
+    monitoring_dir: /opt/monitoring
     app_port: 3000
     # Public key authorized for the deploy user's SSH login. Strongly
     # recommended so deploy.yml can connect as deploy_user with a key.
@@ -141,6 +144,16 @@
     - name: Create application directory
       ansible.builtin.file:
         path: "{{ app_dir }}"
+        state: directory
+        owner: "{{ deploy_user }}"
+        group: "{{ deploy_user }}"
+        mode: "0750"
+
+    # Owned by deploy_user so monitoring.yml (which connects as deploy_user,
+    # without sudo) can write the compose stack and provisioning files here.
+    - name: Create monitoring directory
+      ansible.builtin.file:
+        path: "{{ monitoring_dir }}"
         state: directory
         owner: "{{ deploy_user }}"
         group: "{{ deploy_user }}"

@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio — Guide de déploiement &amp; d'évaluation</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface-2: #1c2430;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #9da7b3;
+    --accent: #58a6ff;
+    --accent-2: #3fb950;
+    --warn: #d29922;
+    --danger: #f85149;
+    --code-bg: #0b0f14;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    font-size: 16px;
+  }
+  .layout { display: flex; max-width: 1200px; margin: 0 auto; }
+  nav.toc {
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    width: 270px;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 32px 20px;
+    border-right: 1px solid var(--border);
+    font-size: 14px;
+  }
+  nav.toc h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 24px 0 8px; }
+  nav.toc h2:first-child { margin-top: 0; }
+  nav.toc a { display: block; color: var(--muted); text-decoration: none; padding: 4px 8px; border-radius: 6px; }
+  nav.toc a:hover { color: var(--text); background: var(--surface); }
+  main { flex: 1; min-width: 0; padding: 40px 48px 120px; }
+  header.hero {
+    background: linear-gradient(135deg, #161b22 0%, #1c2a3a 100%);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 36px 40px;
+    margin-bottom: 40px;
+  }
+  header.hero h1 { margin: 0 0 8px; font-size: 30px; }
+  header.hero p { margin: 0; color: var(--muted); font-size: 17px; }
+  .badges { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .badge {
+    font-size: 12px; padding: 4px 10px; border-radius: 999px;
+    background: var(--surface-2); border: 1px solid var(--border); color: var(--muted);
+  }
+  section { margin-bottom: 56px; scroll-margin-top: 20px; }
+  h2.section-title {
+    font-size: 24px; margin: 0 0 6px;
+    padding-bottom: 10px; border-bottom: 2px solid var(--border);
+  }
+  h3 { font-size: 19px; margin: 32px 0 10px; }
+  h4 { font-size: 16px; margin: 22px 0 8px; color: var(--accent); }
+  p { margin: 12px 0; }
+  code {
+    font-family: "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    font-size: 13.5px;
+    background: var(--surface-2);
+    padding: 2px 6px;
+    border-radius: 5px;
+    color: #f0b9b1;
+  }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    overflow-x: auto;
+    font-size: 13.5px;
+    line-height: 1.55;
+  }
+  pre code { background: none; padding: 0; color: #c9d1d9; }
+  pre .c { color: #6e7781; } /* comment */
+  pre .k { color: #79c0ff; } /* keyword/command */
+  pre .s { color: #a5d6ff; } /* string */
+  .step-list { counter-reset: step; list-style: none; padding: 0; }
+  .step-list > li {
+    position: relative; padding: 0 0 4px 52px; margin-bottom: 28px;
+  }
+  .step-list > li::before {
+    counter-increment: step; content: counter(step);
+    position: absolute; left: 0; top: 0;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--accent); color: #061018; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .step-list > li h4 { margin-top: 4px; }
+  .callout {
+    border-radius: var(--radius); padding: 14px 18px; margin: 18px 0;
+    border: 1px solid var(--border); background: var(--surface);
+    display: flex; gap: 12px;
+  }
+  .callout .ic { font-size: 18px; flex-shrink: 0; }
+  .callout.info { border-left: 4px solid var(--accent); }
+  .callout.warn { border-left: 4px solid var(--warn); }
+  .callout.danger { border-left: 4px solid var(--danger); }
+  .callout.ok { border-left: 4px solid var(--accent-2); }
+  .callout p { margin: 0; font-size: 14.5px; }
+  table {
+    width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 14.5px;
+    border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden;
+  }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { background: var(--surface-2); font-weight: 600; }
+  tr:last-child td { border-bottom: none; }
+  td code { white-space: nowrap; }
+  .cmd-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px 20px; margin-bottom: 16px;
+  }
+  .cmd-card h4 { margin: 0 0 6px; display: flex; align-items: center; gap: 10px; }
+  .cmd-card h4 code { background: var(--code-bg); color: var(--accent); font-size: 14px; }
+  .cmd-card p { margin: 6px 0 0; font-size: 14.5px; color: var(--muted); }
+  .pipeline { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 18px 0; }
+  .pipeline .node {
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 14px; font-size: 13.5px; font-weight: 600;
+  }
+  .pipeline .arrow { color: var(--muted); font-size: 18px; }
+  .tag { display:inline-block; font-size:11px; padding:2px 8px; border-radius:999px; background:var(--surface-2); border:1px solid var(--border); color:var(--muted); margin-left:6px; vertical-align:middle;}
+  footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--border); padding-top: 20px; }
+  a.inline { color: var(--accent); text-decoration: none; }
+  a.inline:hover { text-decoration: underline; }
+  @media (max-width: 900px) {
+    nav.toc { display: none; }
+    main { padding: 24px 20px 80px; }
+    header.hero { padding: 24px; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <nav class="toc">
+    <h2>Pour l'évaluateur</h2>
+    <a href="#prerequis">Prérequis</a>
+    <a href="#demarrage">Démarrage avec .env + clé SSH</a>
+    <a href="#verifications">Vérifications</a>
+    <h2>Référence</h2>
+    <a href="#make">Commandes <code>make</code></a>
+    <a href="#cicd">CI/CD</a>
+    <a href="#securite">Sécurité &amp; qualité</a>
+    <a href="#monitoring">Monitoring</a>
+    <a href="#ansible">Ansible</a>
+    <a href="#secrets">Secrets requis</a>
+  </nav>
+
+  <main>
+    <header class="hero">
+      <h1>Portfolio — Déploiement &amp; Évaluation</h1>
+      <p>Guide pour lancer le déploiement à partir du <code>.env</code> et de la clé SSH privée
+         fournis, puis comprendre la chaîne CI/CD, la sécurité, le monitoring et Ansible.</p>
+      <div class="badges">
+        <span class="badge">Next.js + Sanity</span>
+        <span class="badge">Docker / GHCR</span>
+        <span class="badge">GitHub Actions</span>
+        <span class="badge">Ansible</span>
+        <span class="badge">Prometheus + Grafana</span>
+        <span class="badge">VPS (OVH/Ubuntu)</span>
+      </div>
+    </header>
+
+    <!-- ============================ PART 1 ============================ -->
+    <section id="prerequis">
+      <h2 class="section-title">1. Prérequis sur votre machine</h2>
+      <p>Vous avez reçu deux fichiers&nbsp;: mon <code>.env</code> déjà rempli et ma
+         <strong>clé privée SSH de déploiement</strong> (le fichier dont le chemin figure dans
+         <code>VPS_SSH_KEY_FILE</code>). Tout est donc déjà en place&nbsp;: les secrets GitHub sont
+         poussés et le VPS est déjà provisionné.</p>
+
+      <div class="callout danger">
+        <span class="ic">⛔</span>
+        <p><strong>Ne lancez PAS</strong> <code>make gen-secrets</code>, <code>make secrets</code>
+           ni <code>make provision</code>&nbsp;: ces étapes génèrent les secrets et configurent le
+           VPS — elles ont déjà été faites. Les relancer écraserait des secrets existants.</p>
+      </div>
+
+      <p>Outils à installer côté contrôleur (votre poste, sous Linux Debian/Ubuntu)&nbsp;:</p>
+      <pre><code><span class="c"># Outils de base (Ansible, make, client SSH, curl)</span>
+<span class="k">sudo apt update</span>
+<span class="k">sudo apt install -y</span> ansible make openssh-client curl
+
+<span class="c"># Collections Ansible utilisées par les playbooks</span>
+<span class="k">ansible-galaxy collection install</span> community.docker community.general</code></pre>
+      <div class="callout info">
+        <span class="ic">🐧</span>
+        <p>Sur Fedora/RHEL&nbsp;: <code>sudo dnf install -y ansible make openssh-clients curl</code>.
+           Sur Arch&nbsp;: <code>sudo pacman -S ansible make openssh curl</code>. Si <code>apt</code>
+           fournit une version d'Ansible trop ancienne, utilisez
+           <code>python3 -m pip install --user ansible-core</code>.</p>
+      </div>
+    </section>
+
+    <section id="demarrage">
+      <h2 class="section-title">2. Démarrer le workflow avec le <code>.env</code> et la clé SSH</h2>
+      <p>Toutes les cibles <code>make</code> chargent automatiquement le <code>.env</code> à la racine
+         du dépôt. Il suffit de déposer les deux fichiers reçus au bon endroit, puis de déployer.</p>
+
+      <ol class="step-list">
+        <li>
+          <h4>Déposer le <code>.env</code> à la racine du dépôt</h4>
+          <pre><code><span class="k">cp</span> /chemin/vers/.env  ./.env</code></pre>
+          <p>Le fichier <code>.env</code> est gitignoré&nbsp;: il ne sera jamais committé. Il contient
+             notamment <code>VPS_HOST</code>, <code>VPS_USER</code>, <code>GH_REPO</code> et le chemin
+             <code>VPS_SSH_KEY_FILE</code>.</p>
+        </li>
+        <li>
+          <h4>Déposer la clé privée SSH à l'emplacement attendu</h4>
+          <pre><code><span class="k">mkdir -p</span> ~/.ssh
+<span class="k">cp</span> /chemin/vers/vps_deploy_key  ~/.ssh/vps_deploy_key   <span class="c"># = chemin VPS_SSH_KEY_FILE</span>
+<span class="k">chmod</span> <span class="s">600</span> ~/.ssh/vps_deploy_key                      <span class="c"># Ansible/SSH refusent une clé trop permissive</span></code></pre>
+          <div class="callout info">
+            <span class="ic">ℹ️</span>
+            <p>Le chemin local de la clé est celui de <code>VPS_SSH_KEY_FILE</code> dans le
+               <code>.env</code> (par défaut <code>~/.ssh/vps_deploy_key</code>). S'il diffère,
+               déposez la clé exactement à cet emplacement-là, ou ajustez la variable.</p>
+          </div>
+        </li>
+        <li>
+          <h4>Déployer l'application et le monitoring</h4>
+          <pre><code><span class="k">make deploy</span>        <span class="c"># (re)déploie l'application sur le VPS</span>
+<span class="k">make monitoring</span>    <span class="c"># déploie la stack Prometheus + Grafana</span>
+<span class="k">make tunnel</span>        <span class="c"># tunnel SSH -> Grafana (3001) + Prometheus (9090)</span></code></pre>
+          <p>Ces cibles utilisent la clé de déploiement (<code>VPS_SSH_KEY_FILE</code>) pour se
+             connecter au VPS en tant qu'utilisateur <code>deploy</code>.</p>
+        </li>
+      </ol>
+
+      <div class="callout ok">
+        <span class="ic">✅</span>
+        <p><strong>Observer la chaîne CI/CD complète sans rien déployer à la main&nbsp;:</strong>
+           un <code>git push</code> sur <code>main</code> (ou <em>Run workflow</em> depuis l'onglet
+           Actions) déclenche CI → Security → SonarCloud, puis le workflow <strong>Deploy</strong>
+           quand la CI passe. Les secrets GitHub étant déjà configurés, le pipeline tourne tel quel.</p>
+      </div>
+    </section>
+
+    <section id="verifications">
+      <h2 class="section-title">3. Vérifications rapides</h2>
+      <pre><code><span class="c"># 1. L'application répond (port public)</span>
+<span class="k">curl</span> http://&lt;VPS_HOST&gt;:3000
+
+<span class="c"># 2. Avec « make tunnel » ouvert :</span>
+<span class="k">open</span> http://localhost:3001           <span class="c"># Grafana (admin / $GRAFANA_ADMIN_PASSWORD)</span>
+<span class="k">open</span> http://localhost:9090/targets   <span class="c"># toutes les cibles Prometheus UP</span></code></pre>
+      <p>Le mot de passe Grafana est dans le <code>.env</code> (<code>GRAFANA_ADMIN_PASSWORD</code>) ;
+         <code>make tunnel</code> l'affiche aussi au démarrage. Fermez le tunnel avec
+         <code>make tunnel-stop</code>.</p>
+
+      <table>
+        <tr><th>Élément</th><th>Outil</th><th>Accès</th></tr>
+        <tr><td>Application</td><td>Conteneur Docker <code>portfolio</code></td><td><code>http://&lt;VPS_HOST&gt;:3000</code> (public)</td></tr>
+        <tr><td>Métriques</td><td>Prometheus</td><td><code>127.0.0.1:9090</code> (tunnel SSH)</td></tr>
+        <tr><td>Dashboards</td><td>Grafana</td><td><code>127.0.0.1:3001</code> (tunnel SSH)</td></tr>
+        <tr><td>Métriques hôte</td><td>node-exporter</td><td>scrapé par Prometheus</td></tr>
+        <tr><td>Métriques conteneurs</td><td>cAdvisor</td><td>scrapé par Prometheus</td></tr>
+      </table>
+      <div class="callout info">
+        <span class="ic">🔒</span>
+        <p>Toute la stack de monitoring est bindée sur <code>127.0.0.1</code>&nbsp;: <strong>rien n'est
+           exposé publiquement</strong>. Le firewall UFW (configuré par <code>provision.yml</code>)
+           n'autorise en entrée que SSH et le port 3000.</p>
+      </div>
+    </section>
+
+    <!-- ============================ PART 2 ============================ -->
+    <section id="make">
+      <h2 class="section-title">4. Les commandes <code>make</code></h2>
+      <p>Le <code>Makefile</code> est une façade autour des scripts et des playbooks Ansible. Chaque
+         cible <code>source</code> automatiquement le <code>.env</code>. <code>make help</code> liste
+         toutes les cibles. Voici ce que chacune fait&nbsp;:</p>
+
+      <div class="cmd-card">
+        <h4><code>make gen-secrets</code> <span class="tag">setup initial</span></h4>
+        <p>Exécute <code>scripts/gen-secrets.sh</code>. Génère, <strong>uniquement si la valeur est
+           encore vide</strong> (idempotent)&nbsp;: un mot de passe Grafana aléatoire
+           (<code>GRAFANA_ADMIN_PASSWORD</code>), une paire de clés SSH ed25519 à
+           <code>VPS_SSH_KEY_FILE</code>, et la clé publique correspondante dans
+           <code>SSH_PUBKEY</code>. Tout est réécrit dans le <code>.env</code>.</p>
+      </div>
+
+      <div class="cmd-card">
+        <h4><code>make secrets</code> <span class="tag">setup initial</span></h4>
+        <p>Exécute <code>scripts/set-github-secrets.sh</code>. Pousse en une fois les secrets
+           GitHub Actions du dépôt (<code>GH_REPO</code>) via la CLI <code>gh</code>&nbsp;:
+           les valeurs simples lues dans le <code>.env</code> + la clé privée
+           <code>VPS_SSH_KEY</code> (lue depuis le fichier). Nécessite <code>gh auth login</code>.</p>
+      </div>
+
+      <div class="cmd-card">
+        <h4><code>make provision</code> <span class="tag">une seule fois</span></h4>
+        <p>Lance <code>ansible/provision.yml</code> pour bootstrapper un VPS neuf&nbsp;: installe
+           Docker, crée l'utilisateur <code>deploy</code> (avec <code>SSH_PUBKEY</code>), les dossiers
+           <code>/opt/portfolio</code> et <code>/opt/monitoring</code>, et le firewall UFW. Se connecte
+           avec <code>VPS_BOOTSTRAP_USER</code> (par défaut <code>ubuntu</code> chez OVH).</p>
+      </div>
+
+      <div class="cmd-card">
+        <h4><code>make deploy</code></h4>
+        <p>Lance <code>ansible/deploy.yml</code>&nbsp;: connexion à GHCR, pull de l'image
+           <code>ghcr.io/.../portfolio:$IMAGE_TAG</code> (défaut <code>latest</code>), arrêt de
+           l'ancien conteneur, démarrage du nouveau sur le port 3000 avec le
+           <code>/opt/portfolio/.env</code> du VPS.</p>
+      </div>
+
+      <div class="cmd-card">
+        <h4><code>make monitoring</code></h4>
+        <p>Lance <code>ansible/monitoring.yml</code>&nbsp;: rend les configs Prometheus/Grafana,
+           démarre la stack via docker-compose, puis <strong>vérifie</strong> que Prometheus est prêt
+           et que toutes ses cibles sont <code>up</code> (échoue sinon).</p>
+      </div>
+
+      <div class="cmd-card">
+        <h4><code>make tunnel</code> / <code>make tunnel-stop</code></h4>
+        <p>Ouvre (en arrière-plan) un tunnel SSH multiplexé redirigeant Grafana
+           (<code>3001</code>) et Prometheus (<code>9090</code>) vers <code>localhost</code>, en
+           utilisant <code>VPS_SSH_KEY_FILE</code>. <code>tunnel-stop</code> le referme.</p>
+      </div>
+    </section>
+
+    <section id="cicd">
+      <h2 class="section-title">5. Comment fonctionne le CI/CD</h2>
+      <p>Quatre workflows GitHub Actions dans <code>.github/workflows/</code>. Sur un
+         <code>push</code> vers <code>main</code> (ou une pull request), <strong>CI</strong>,
+         <strong>Security</strong> et <strong>SonarCloud</strong> tournent en parallèle. Le workflow
+         <strong>Deploy</strong> ne se déclenche qu'<em>après</em> une CI réussie.</p>
+
+      <div class="pipeline">
+        <span class="node">git push main</span>
+        <span class="arrow">→</span>
+        <span class="node">CI</span>
+        <span class="node">Security</span>
+        <span class="node">SonarCloud</span>
+        <span class="arrow">→</span>
+        <span class="node">CI ✅</span>
+        <span class="arrow">→</span>
+        <span class="node">Deploy</span>
+      </div>
+
+      <h3><code>ci.yml</code> — intégration continue</h3>
+      <p>Quatre jobs parallèles, avec Bun&nbsp;: <strong>Lint</strong> (<code>bun run lint</code>),
+         <strong>Type check</strong> (<code>bun run typecheck</code>), <strong>Build</strong>
+         (<code>bun run build</code> avec les variables Sanity), et <strong>Docker build</strong>
+         (construction de l'image sans push, pour valider le <code>Dockerfile</code>).</p>
+
+      <h3><code>deploy.yml</code> — déploiement continu</h3>
+      <p>Déclenché par <code>workflow_run</code> à la fin du workflow CI sur <code>main</code> — et
+         <strong>seulement si la CI a réussi</strong> — ou manuellement via
+         <code>workflow_dispatch</code>. Étapes&nbsp;:</p>
+      <ul>
+        <li>Checkout du SHA exact qui a passé la CI ;</li>
+        <li>Build + push de l'image vers <strong>GHCR</strong>, taguée <code>latest</code> et avec le
+            <em>short SHA</em> du commit (cache GitHub Actions activé) ;</li>
+        <li>Installation d'Ansible, écriture temporaire de la clé <code>VPS_SSH_KEY</code> ;</li>
+        <li>Exécution de <code>deploy.yml</code> (avec <code>image_tag = short SHA</code>) puis de
+            <code>monitoring.yml</code> ;</li>
+        <li>Suppression de la clé privée (<code>if: always()</code>).</li>
+      </ul>
+      <div class="callout info">
+        <span class="ic">🧭</span>
+        <p>Le tag d'image dérive du <em>short SHA</em>, identique des deux côtés (workflow et
+           playbook)&nbsp;: le VPS pull donc exactement l'image construite pour ce commit. La
+           <code>concurrency</code> est configurée pour <strong>ne jamais annuler un déploiement
+           en cours</strong> (les déploiements se mettent en file).</p>
+      </div>
+    </section>
+
+    <section id="securite">
+      <h2 class="section-title">6. Sécurité &amp; qualité du code</h2>
+
+      <h3><code>security.yml</code> — analyse de sécurité</h3>
+      <p>Sur PR, push <code>main</code>, et tous les lundis 06:00 (cron). Principe du moindre
+         privilège (permissions <code>read</code> par défaut). Cinq jobs&nbsp;:</p>
+      <table>
+        <tr><th>Job</th><th>Outil</th><th>Rôle</th></tr>
+        <tr><td>CodeQL</td><td>github/codeql-action</td><td>Analyse statique JS/TS, résultats SARIF dans l'onglet Security.</td></tr>
+        <tr><td>Trivy filesystem</td><td>aquasecurity/trivy</td><td>Scanne dépendances, secrets et misconfigurations (CRITICAL/HIGH).</td></tr>
+        <tr><td>Trivy image</td><td>aquasecurity/trivy</td><td>Build local de l'image Docker puis scan des vulnérabilités (report-only pour l'instant).</td></tr>
+        <tr><td>Gitleaks</td><td>gitleaks-action</td><td>Recherche de secrets fuités dans tout l'historique Git.</td></tr>
+        <tr><td>bun audit</td><td>Bun</td><td>Rapporte les dépendances vulnérables (non bloquant, résumé dans le step summary).</td></tr>
+      </table>
+      <p>Les résultats SARIF (CodeQL, Trivy) remontent dans l'onglet <strong>Security</strong> du dépôt
+         GitHub via <code>upload-sarif</code>.</p>
+
+      <h3><code>sonarcloud.yml</code> — qualité du code</h3>
+      <p>Sur PR et push <code>main</code>. Checkout complet (<code>fetch-depth: 0</code>, requis pour
+         le <em>blame</em> et la détection du code neuf), installation des dépendances avec Bun, puis
+         scan <strong>SonarCloud</strong> (qualité, bugs, code smells, couverture, sécurité) via le
+         secret <code>SONAR_TOKEN</code>.</p>
+    </section>
+
+    <section id="monitoring">
+      <h2 class="section-title">7. Comment fonctionne le monitoring</h2>
+      <p>La stack d'observabilité est déployée par <code>monitoring.yml</code> (manuellement via
+         <code>make monitoring</code>, ou automatiquement par le workflow Deploy). Elle tourne en
+         docker-compose dans <code>/opt/monitoring</code> sur le VPS.</p>
+      <ul>
+        <li><strong>Prometheus</strong> — collecte les métriques toutes les 15&nbsp;s. Cibles
+            scrappées&nbsp;: <code>prometheus</code> lui-même, <code>node-exporter</code> (métriques de
+            l'hôte) et <code>cadvisor</code> (métriques par conteneur).</li>
+        <li><strong>Grafana</strong> — deux dashboards provisionnés automatiquement&nbsp;:
+            <em>Host — Node Exporter</em> (CPU, mémoire, disque, réseau) et
+            <em>Containers — cAdvisor</em> (ressources par conteneur, dont <code>portfolio</code>).</li>
+        <li><strong>node-exporter</strong> et <strong>cAdvisor</strong> — exportateurs scrappés par
+            Prometheus.</li>
+      </ul>
+      <div class="callout warn">
+        <span class="ic">🔐</span>
+        <p>Tous les ports de monitoring sont bindés sur <code>127.0.0.1</code> et accessibles
+           uniquement par tunnel SSH. Le playbook <strong>échoue</strong> si
+           <code>GRAFANA_ADMIN_PASSWORD</code> n'est pas défini, et vérifie en fin de run que toutes
+           les cibles Prometheus sont <code>up</code>.</p>
+      </div>
+      <p>Accès manuel à Grafana sans <code>make tunnel</code>&nbsp;:</p>
+      <pre><code><span class="k">ssh</span> -L 3001:127.0.0.1:3001 deploy@&lt;VPS_HOST&gt;
+<span class="c"># puis ouvrir http://localhost:3001 — login admin / $GRAFANA_ADMIN_PASSWORD</span></code></pre>
+    </section>
+
+    <section id="ansible">
+      <h2 class="section-title">8. Comment fonctionne Ansible</h2>
+      <p>Trois playbooks dans <code>ansible/</code>, chacun ciblant le groupe <code>vps</code> de
+         <code>inventory.ini</code>. La configuration (<code>ansible.cfg</code>) désactive le
+         <em>host key checking</em> et utilise une sortie YAML lisible.</p>
+
+      <h3><code>provision.yml</code> <span class="tag">une fois, en sudo</span></h3>
+      <p>Bootstrap d'un VPS Debian/Ubuntu neuf, en <code>become: true</code>&nbsp;: ajout du dépôt
+         APT officiel de Docker, suppression des paquets Docker de la distro qui entrent en conflit,
+         installation de Docker Engine, création de l'utilisateur <code>deploy</code> (groupe
+         <code>docker</code>, clé <code>SSH_PUBKEY</code> autorisée), création de
+         <code>/opt/portfolio</code> et <code>/opt/monitoring</code>, scaffold d'un <code>.env</code>
+         runtime, et firewall UFW (deny par défaut, autorise SSH + port 3000).</p>
+
+      <h3><code>deploy.yml</code> <span class="tag">connexion deploy, sans sudo</span></h3>
+      <p>Login GHCR (via <code>GHCR_USER</code>/<code>GHCR_PAT</code>), pull forcé de l'image au tag
+         demandé, suppression de l'ancien conteneur, puis lancement du nouveau&nbsp;: port
+         <code>3000</code>, <code>restart_policy: unless-stopped</code>, variables d'environnement
+         depuis <code>/opt/portfolio/.env</code>.</p>
+
+      <h3><code>monitoring.yml</code> <span class="tag">connexion deploy, sans sudo</span></h3>
+      <p>Rend les templates Jinja (<code>prometheus.yml</code>, datasource &amp; dashboards Grafana,
+         <code>docker-compose.yml</code>) dans <code>/opt/monitoring</code>, copie les dashboards JSON,
+         démarre la stack avec <code>docker_compose_v2</code>, puis <strong>vérifie</strong> que
+         Prometheus écoute, est prêt (<code>/-/ready</code>) et que toutes ses cibles actives sont
+         <code>up</code>.</p>
+
+      <div class="callout info">
+        <span class="ic">🧱</span>
+        <p>Séparation des privilèges&nbsp;: <code>provision.yml</code> a besoin de
+           <code>sudo</code> (installation système), tandis que <code>deploy.yml</code> et
+           <code>monitoring.yml</code> se connectent en tant qu'utilisateur <code>deploy</code>
+           (membre du groupe <code>docker</code>) <strong>sans sudo</strong>.</p>
+      </div>
+    </section>
+
+    <section id="secrets">
+      <h2 class="section-title">9. Secrets GitHub Actions (référence)</h2>
+      <p>Poussés en une fois par <code>make secrets</code>. Pour l'évaluation, ils sont déjà
+         configurés&nbsp;; cette table est fournie à titre de référence.</p>
+      <table>
+        <tr><th>Secret</th><th>Usage</th></tr>
+        <tr><td><code>NEXT_PUBLIC_SANITY_PROJECT_ID</code></td><td>Build/runtime de l'app</td></tr>
+        <tr><td><code>NEXT_PUBLIC_SANITY_DATASET</code></td><td>Build/runtime de l'app</td></tr>
+        <tr><td><code>VPS_HOST</code></td><td>IP/host du VPS</td></tr>
+        <tr><td><code>VPS_USER</code></td><td>Utilisateur de déploiement (ex. <code>deploy</code>)</td></tr>
+        <tr><td><code>VPS_PORT</code></td><td>Port SSH (défaut 22)</td></tr>
+        <tr><td><code>VPS_SSH_KEY</code></td><td>Clé privée SSH de déploiement</td></tr>
+        <tr><td><code>GHCR_PAT</code></td><td>Token GHCR pour pull de l'image sur le VPS</td></tr>
+        <tr><td><code>SONAR_TOKEN</code></td><td>Analyse SonarCloud</td></tr>
+        <tr><td><code>GRAFANA_ADMIN_PASSWORD</code></td><td>Mot de passe admin Grafana (monitoring)</td></tr>
+      </table>
+    </section>
+
+    <footer>
+      <p>Document généré pour l'évaluation du projet Portfolio. Référence détaillée &amp; dépannage&nbsp;:
+         <code>docs/deployment.md</code>. Aide des commandes&nbsp;: <code>make help</code>.</p>
+    </footer>
+  </main>
+</div>
+</body>
+</html>
