@@ -54,7 +54,7 @@ export default function CaseDetailClient({ article, otherArticles }: Props) {
 
   return (
     <motion.div
-      className="case-detail-page min-h-screen bg-[#faf7ea] antialiased"
+      className="case-detail-page min-h-dvh bg-cream antialiased"
       style={{ color: '#24292e' }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}

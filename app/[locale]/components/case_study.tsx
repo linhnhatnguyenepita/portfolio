@@ -5,17 +5,21 @@ import Title from './title';
 export default async function CaseStudy() {
   const articles = await getArticles();
   return (
-    <>
-      <div
-        id="case"
-        className="w-full flex items-center flex-col justify-start min-h-full px-4 sm:px-8 lg:px-24"
-      >
-        <Title />
-        <div className="h-1 lg:h-3 bg-[#8e705b] w-32 ml-2 mb-10"></div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-8 w-full">
-          {articles.map((article) => (
+    <section
+      id="case"
+      className="mx-auto w-full max-w-6xl scroll-mt-20 px-4 py-24 sm:px-8 lg:py-32"
+    >
+      <Title />
+      {articles.length === 0 ? (
+        <div className="mt-12 rounded-2xl border border-dashed border-line bg-surface/60 px-6 py-20 text-center">
+          <p className="text-ink-soft">No case studies published yet.</p>
+        </div>
+      ) : (
+        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {articles.map((article, i) => (
             <Article
               key={article.id}
+              index={i}
               id={article.id}
               body={article.body}
               date={article.date}
@@ -24,7 +28,7 @@ export default async function CaseStudy() {
             />
           ))}
         </div>
-      </div>
-    </>
+      )}
+    </section>
   );
 }

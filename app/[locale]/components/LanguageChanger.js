@@ -6,7 +6,7 @@ import {
   DropdownTrigger,
   Button,
   DropdownMenu,
-} from '@nextui-org/react';
+} from '@heroui/react';
 import { RiGlobalLine } from 'react-icons/ri';
 import { useRouter } from 'next/navigation';
 import { usePathname } from 'next/navigation';
@@ -48,8 +48,13 @@ export default function LanguageChanger() {
     <Dropdown>
       <NavbarItem>
         <DropdownTrigger>
-          <Button variant="bordered" color="primary">
-            <RiGlobalLine size={24} />
+          <Button
+            isIconOnly
+            variant="bordered"
+            aria-label="Change language"
+            className="border-line text-ink-soft transition-colors hover:border-accent hover:text-accent-deep"
+          >
+            <RiGlobalLine size={20} />
           </Button>
         </DropdownTrigger>
       </NavbarItem>

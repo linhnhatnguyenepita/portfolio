@@ -41,3 +41,8 @@ next-env.d.ts
 .claude
 .codex
 .vscode
+
+# SSH deploy keys — never commit private keys
+vps_deploy_key
+vps_deploy_key.pub
+*.pem

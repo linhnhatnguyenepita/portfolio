@@ -9,67 +9,94 @@
   padding: 0;
   box-sizing: border-box;
 }
+
 :root {
-  --foreground-rgb: 142, 112, 91;
-  --background-rgb: 0, 165, 157;
+  /* Warm editorial palette */
+  --cream: #faf7ea;
+  --surface: #f1ecda;
+  --ink: #2e251d; /* primary text, AAA on cream */
+  --ink-soft: #5c4f42; /* muted text, AA on cream */
+  --accent: #8e705b;
+  --accent-deep: #6f5645;
+  --line: #ddd5bf;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  color: #8e705b;
-  background: #faf7ea;
+  color: var(--ink);
+  background: var(--cream);
   overflow-x: hidden;
   font-family: 'DM Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-/* width */
+::selection {
+  background: var(--accent);
+  color: var(--cream);
+}
+
+/* Scrollbar */
 ::-webkit-scrollbar {
   width: 10px;
 }
-
-/* Track */
 ::-webkit-scrollbar-track {
-  background: #f9f7eb;
+  background: var(--surface);
 }
-
-/* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #8e705b;
+  background: var(--accent);
   border-radius: 5px;
 }
-
-/* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: var(--accent-deep);
 }
 
-h1 {
-  font-size: 32px; /* 8 * 4 */
-  font-weight: bold;
+/* Display headings use the serif so the type pairing earns its keep */
+.font-display {
+  font-family: 'Playfair Display', serif;
+  letter-spacing: -0.02em;
 }
 
-h2 {
-  font-size: 28px; /* 7 * 4 */
-  font-weight: bold;
+/* Section label */
+.eyebrow {
+  font-size: 0.75rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--accent-deep);
 }
 
-h3 {
-  font-size: 24px; /* 6 * 4 */
-  font-weight: bold;
+/* Accent rule used under section headings */
+.accent-rule {
+  height: 3px;
+  width: 4rem;
+  background: var(--accent);
+  border-radius: 9999px;
 }
 
-h4 {
-  font-size: 20px; /* 5 * 4 */
-  font-weight: bold;
+/* Accessible focus ring across interactive elements */
+a:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 
-h5 {
-  font-size: 16px; /* 4 * 4 */
-  font-weight: bold;
-}
-
-h6 {
-  font-size: 12px; /* 3 * 4 */
-  font-weight: bold;
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }
 /*
  * GitHub-style prose for case study detail page

@@ -19,5 +19,12 @@
   "contact-send": "Send",
   "contact-enter-mail": "Enter your email",
   "contact-enter-name": "Enter your name",
-  "contact-enter-desc": "Enter your description"
+  "contact-enter-desc": "Enter your description",
+  "contact-subtitle": "Have a project or a role in mind? Send a note and I'll get back to you.",
+  "contact-sending": "Sending...",
+  "contact-success": "Thanks. Your message has been sent.",
+  "contact-error": "Something went wrong. Please try again.",
+  "contact-err-email": "Please enter a valid email address.",
+  "contact-err-name": "Please enter your name.",
+  "contact-err-desc": "Please enter a message."
 }

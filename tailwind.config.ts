@@ -1,13 +1,12 @@
-import { colors } from '@nextui-org/react';
 import type { Config } from 'tailwindcss';
-const { nextui } = require('@nextui-org/react');
+const { heroui } = require('@heroui/react');
 
 const config: Config = {
   content: [
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
-    './node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}',
+    './node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}',
   ],
   theme: {
     extend: {
@@ -15,26 +14,45 @@ const config: Config = {
         sans: ['DM Sans', 'sans-serif'],
         serif: ['Playfair Display', 'serif'],
       },
+      colors: {
+        cream: '#faf7ea',
+        surface: '#f1ecda',
+        ink: '#2e251d',
+        'ink-soft': '#5c4f42',
+        accent: '#8e705b',
+        'accent-deep': '#6f5645',
+        line: '#ddd5bf',
+      },
+      letterSpacing: {
+        tightest: '-0.04em',
+      },
     },
   },
   plugins: [
     require('@tailwindcss/typography'),
-    nextui({
+    heroui({
       defaultTheme: 'light',
       themes: {
         light: {
           colors: {
-            primary: '#8e705b', // primary color
-            secondary: '#8e705b', // secondary color
-            background: '#faf7ea', // background color
-            text: '#8e705b', // text color
-          }, // light theme colors
+            // accent family is reserved for interactive / accent surfaces
+            primary: {
+              DEFAULT: '#8e705b',
+              foreground: '#faf7ea',
+            },
+            secondary: {
+              DEFAULT: '#6f5645',
+              foreground: '#faf7ea',
+            },
+            background: '#faf7ea',
+            foreground: '#2e251d', // accessible ink text (AAA on cream)
+            focus: '#8e705b',
+          },
         },
         dark: {
           layout: {}, // dark theme layout tokens
           colors: {}, // dark theme colors
         },
-        // ... custom themes
       },
     }),
   ],

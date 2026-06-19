@@ -24,20 +24,29 @@ export default async function Home({ params }: HomeProps) {
       namespaces={['common']}
     >
       <Header />
-      <div className="flex flex-col w-full font-sans items-center justify-start">
+      <main className="flex w-full flex-col font-sans">
         <Hero />
+        <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
+          <hr className="border-line" />
+        </div>
         <About />
+        <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
+          <hr className="border-line" />
+        </div>
         <CaseStudy />
+        <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
+          <hr className="border-line" />
+        </div>
         <Contact />
-        {/* <iframe
-          className="rounded-lg fixed bottom-5 right-1/2 transform translate-x-1/2 w-full sm:w-3/4 md:w-1/2 lg:w-1/3"
-          src="https://open.spotify.com/embed/track/2plbrEY59IikOBgBGLjaoe?utm_source=generator"
-          height="80"
-          allowFullScreen
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-          loading="lazy"
-        ></iframe> */}
-      </div>
+      </main>
+      <footer className="border-t border-line">
+        <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-2 px-4 py-8 text-sm text-ink-soft sm:flex-row sm:px-8">
+          <span className="font-display font-semibold text-ink">
+            Nhat Linh Nguyen
+          </span>
+          <span>&copy; {new Date().getFullYear()}</span>
+        </div>
+      </footer>
     </TranslationProvider>
   );
 }

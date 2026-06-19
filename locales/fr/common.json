@@ -5,6 +5,7 @@
   "header-contact": "Contact",
   "hero-title": "DÉVELOPPEUR FRONTEND",
   "hero-cv": "Mon CV",
+  "hero-download": "Télécharger",
   "about-title": "À propos de moi",
   "about-description": "Je m'appelle Nhat Linh Nguyen, actuellement étudiant à l'EPITA en spécialité Développement web et applications. Passionné par le développement Full-Stack, j'ai déjà acquis une solide expérience professionnelle au travers de plusieurs alternances et stages. Mon expertise se concentre sur la maintenance, le développement de nouvelles fonctionnalités, et la migration d'applications web et mobiles, notamment avec des technologies comme ASP.NET, React Native, et Flutter. Curieux et déterminé, je suis constamment à la recherche de nouveaux défis pour élargir mes compétences. Polyvalent, je maîtrise une variété de langages de programmation tels que HTML, CSS, JavaScript, C++, et C#, ainsi que des frameworks comme ReactJS et NextJS. En parallèle de mes compétences techniques, j'accorde une grande importance au management d'équipe et à la communication, éléments essentiels pour mener à bien les projets auxquels je participe. En plus de mes compétences en informatique, je suis trilingue, parlant couramment le vietnamien, le français et l'anglais. Actuellement, je suis à la recherche d'une alternance pour l'année 2024-2025 afin de continuer à développer mes compétences tout en contribuant activement à des projets innovants.",
   "about-education": "Éducation",
@@ -18,5 +19,12 @@
   "contact-send": "Envoyer",
   "contact-enter-mail": "Entrez votre e-mail",
   "contact-enter-name": "Entrez votre nom",
-  "contact-enter-desc": "Entrez votre description"
+  "contact-enter-desc": "Entrez votre description",
+  "contact-subtitle": "Un projet ou un poste en tête ? Laissez-moi un mot et je vous répondrai.",
+  "contact-sending": "Envoi...",
+  "contact-success": "Merci. Votre message a bien été envoyé.",
+  "contact-error": "Une erreur est survenue. Veuillez réessayer.",
+  "contact-err-email": "Veuillez saisir une adresse e-mail valide.",
+  "contact-err-name": "Veuillez saisir votre nom.",
+  "contact-err-desc": "Veuillez saisir un message."
 }

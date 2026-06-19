@@ -1,7 +1,13 @@
 'use client';
 
 import { cn } from '@/utils/cn';
-import { motion, stagger, useAnimate, useInView } from 'motion/react';
+import {
+  motion,
+  stagger,
+  useAnimate,
+  useInView,
+  useReducedMotion,
+} from 'motion/react';
 import { useEffect } from 'react';
 
 export const TypewriterEffect = ({
@@ -16,6 +22,8 @@ export const TypewriterEffect = ({
   className?: string;
   cursorClassName?: string;
 }) => {
+  const reduceMotion = useReducedMotion();
+
   // split text inside of words into array of characters
   const wordsArray = words.map((word) => {
     return {
@@ -27,21 +35,25 @@ export const TypewriterEffect = ({
   const [scope, animate] = useAnimate();
   const isInView = useInView(scope);
   useEffect(() => {
-    if (isInView) {
-      animate(
-        'span',
-        {
-          display: 'inline-block',
-          opacity: 1,
-        },
-        {
-          duration: 0.3,
-          delay: stagger(0.1),
-          ease: 'easeInOut',
-        }
-      );
+    if (!isInView) return;
+    if (reduceMotion) {
+      // Reveal all characters instantly, no per-character stagger.
+      animate('span', { display: 'inline-block', opacity: 1 }, { duration: 0 });
+      return;
     }
-  }, [animate, isInView]);
+    animate(
+      'span',
+      {
+        display: 'inline-block',
+        opacity: 1,
+      },
+      {
+        duration: 0.3,
+        delay: stagger(0.1),
+        ease: 'easeInOut',
+      }
+    );
+  }, [animate, isInView, reduceMotion]);
 
   const renderWords = () => {
     return (
@@ -74,19 +86,24 @@ export const TypewriterEffect = ({
     >
       {renderWords()}
       <motion.span
+        aria-hidden="true"
         initial={{
-          opacity: 0,
+          opacity: reduceMotion ? 1 : 0,
         }}
         animate={{
           opacity: 1,
         }}
-        transition={{
-          duration: 0.8,
-          repeat: Infinity,
-          repeatType: 'reverse',
-        }}
+        transition={
+          reduceMotion
+            ? { duration: 0 }
+            : {
+                duration: 0.8,
+                repeat: Infinity,
+                repeatType: 'reverse',
+              }
+        }
         className={cn(
-          'inline-block rounded-sm w-[2px] sm:w-[3px] md:w-[4px] h-[24px] sm:h-[48px] md:h-[72px] lg:h-[92px] bg-[#8E705B] dark:bg-black',
+          'inline-block rounded-sm w-[2px] sm:w-[3px] md:w-[4px] h-[24px] sm:h-[48px] md:h-[72px] lg:h-[92px] bg-accent',
           cursorClassName
         )}
       ></motion.span>
