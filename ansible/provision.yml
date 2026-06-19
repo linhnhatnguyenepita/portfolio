@@ -68,6 +68,29 @@
         filename: docker
         state: present
 
+    # Ubuntu ships its own Docker stack (docker.io / containerd / runc /
+    # docker-compose-v2) whose files collide with Docker CE's packages. Per
+    # Docker's official install guide, remove them before installing Docker CE.
+    - name: Remove distro Docker packages that conflict with Docker CE
+      ansible.builtin.apt:
+        name:
+          - docker.io
+          - docker-doc
+          - docker-compose
+          - docker-compose-v2
+          - podman-docker
+          - containerd
+          - runc
+        state: absent
+        purge: true
+
+    # Recover dpkg if a previous install was interrupted mid-transaction
+    # (no-op on a clean system).
+    - name: Finish any interrupted dpkg configuration
+      ansible.builtin.command: dpkg --configure -a
+      register: dpkg_configure
+      changed_when: "dpkg_configure.stdout | length > 0"
+
     - name: Install Docker Engine
       ansible.builtin.apt:
         name:
@@ -79,11 +102,20 @@
         state: present
         update_cache: true
 
+    # The docker-ce postinst starts the daemon immediately; on some images this
+    # races and trips systemd's StartLimit ("start request repeated too
+    # quickly"), which then blocks our own start task. Clear that failed state
+    # first. Harmless no-op when the unit is healthy.
+    - name: Clear any failed state from the post-install restart limiter
+      ansible.builtin.command: systemctl reset-failed docker.service
+      changed_when: false
+
     - name: Ensure Docker is started and enabled on boot
-      ansible.builtin.service:
+      ansible.builtin.systemd_service:
         name: docker
         state: started
         enabled: true
+        daemon_reload: true
 
     # ------------------------------------------------------------------
     # Deploy user
