@@ -91,6 +91,11 @@ jobs:
       - name: Run Ansible deploy playbook
         working-directory: ${{ github.workspace }}
         env:
+          # Load the repo's ansible.cfg explicitly. The playbook runs from the
+          # repo root, so Ansible would not auto-discover ansible/ansible.cfg
+          # (it only loads ./ansible.cfg). This applies host_key_checking=False
+          # and the yaml stdout callback.
+          ANSIBLE_CONFIG: ${{ github.workspace }}/ansible/ansible.cfg
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
           VPS_PORT: ${{ secrets.VPS_PORT }}
