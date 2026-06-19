@@ -2,7 +2,8 @@ version: 2
 
 updates:
   # -------------------------------------------------------------------------
-  # npm — application dependencies
+  # JavaScript (Bun) — application dependencies.
+  # Dependabot's JS ecosystem id is "npm"; it detects and updates bun.lock.
   # -------------------------------------------------------------------------
   - package-ecosystem: npm
     directory: /

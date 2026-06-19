@@ -1,28 +1,26 @@
-FROM node:22.6.0
+FROM oven/bun:1
 
 # Set working directory to /app
 WORKDIR /app
 
-# Copy package.json to /app
-COPY package*.json .
+# Copy manifest and lockfile first to leverage Docker layer caching
+COPY package.json bun.lock ./
 
-# copy dependencies . . means all files in current directory with node_modules and other files
+# Install dependencies from the frozen lockfile (fails if lockfile is stale)
+RUN bun install --frozen-lockfile
+
+# Copy the rest of the application
 COPY . .
-
-
-# run npm install to install dependencies
-RUN npm install
 
 ARG NEXT_PUBLIC_SANITY_PROJECT_ID
 ARG NEXT_PUBLIC_SANITY_DATASET
 ENV NEXT_PUBLIC_SANITY_PROJECT_ID=$NEXT_PUBLIC_SANITY_PROJECT_ID
 ENV NEXT_PUBLIC_SANITY_DATASET=$NEXT_PUBLIC_SANITY_DATASET
 
-RUN npm run build
+RUN bun run build
 
 # expose port 3000
 EXPOSE 3000
 
-
-# npm run start to run the app
-CMD [ "npm","run","start" ]
+# run the app
+CMD [ "bun", "run", "start" ]

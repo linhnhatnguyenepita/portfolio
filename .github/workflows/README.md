@@ -109,13 +109,13 @@ Never commit IP addresses or usernames to `inventory.ini` — it uses `lookup('e
 | Job | Tool | What it checks |
 |-----|------|----------------|
 | `codeql` | GitHub CodeQL | Static analysis — JS/TS logic flaws, injection vectors |
-| `trivy-fs` | Trivy (filesystem) | Vulnerable npm packages, exposed secrets in files, IaC misconfigurations |
+| `trivy-fs` | Trivy (filesystem) | Vulnerable bun packages, exposed secrets in files, IaC misconfigurations |
 | `trivy-image` | Trivy (image) | OS + app vulnerabilities in the built Docker image |
 | `gitleaks` | Gitleaks | Secrets leaked anywhere in the full Git history |
-| `npm-audit` | npm audit | High/critical CVEs in the dependency tree (report-only, non-blocking) |
+| `bun-audit` | bun audit | High/critical CVEs in the dependency tree (report-only, non-blocking) |
 
 **Viewing results:**  
-CodeQL and both Trivy jobs upload SARIF files. Findings appear under **Security > Code scanning alerts** in the GitHub repository. Gitleaks and npm-audit findings appear in the workflow run logs and step summary.
+CodeQL and both Trivy jobs upload SARIF files. Findings appear under **Security > Code scanning alerts** in the GitHub repository. Gitleaks and bun-audit findings appear in the workflow run logs and step summary.
 
 **Gitleaks free-tier note:**  
 `GITLEAKS_LICENSE` is not set. Gitleaks Action v2 works without a license for personal repos and organisations with 25 or fewer members — you may see a warning like `WARNING: a license is required for commercial use` in the job log. This is cosmetic; the scan still runs and detects secrets.
